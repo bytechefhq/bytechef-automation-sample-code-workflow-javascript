@@ -1,23 +1,11 @@
 {
-  "name": "bytechef-sample-code-project-javascript",
+  "name": "bytechef-automation-sample-code-workflow-javascript",
   "version": "1.0.0",
-  "description": "A JavaScript project",
-  "main": "./dist/sample_code_workflow.js",
+  "private": true,
+  "description": "A sample ByteChef automation code project written in JavaScript.",
+  "main": "src/sample_code_project.js",
   "scripts": {
-    "build": "node ./node_modules/parcel-bundler/bin/cli build src/sample_project_handler.js --out-dir ./dist/",
-    "lint": "node ./node_modules/eslint/bin/eslint . --ext .js --fix"
+    "check": "node scripts/check.js src/sample_code_project.js name=Ada"
   },
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.29.1",
-    "parcel-bundler": "^1.12.5"
-  }
+  "license": "MIT"
 }
