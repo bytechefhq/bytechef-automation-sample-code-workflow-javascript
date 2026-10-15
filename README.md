@@ -6,8 +6,29 @@ The file is a single parenthesized object expression, `({ ... })`. The server ev
 `name`, `description`, `version` and `workflows`, then calls each task's `perform(context)` when the workflow runs.
 Keep it a bare expression: a bundler or module wrapper hides the object from the server.
 
-The project, "Sample Code Project JavaScript", has one workflow, `sampleWorkflow1`. It takes a `name` input, runs one
-task, `greet`, that logs and returns `Hello, <name>!`, and exposes that as the `greeting` output.
+The project, "Sample Code Project JavaScript", has three workflows:
+
+- `sampleWorkflow1` takes a `name` input, runs one task, `greet`, that logs and returns `Hello, <name>!`, and exposes
+  that as the `greeting` output.
+- `summarizeNewEmail` starts with the Gmail **New Email** polling trigger (`googleMail/v1/newEmailPolling`). It runs
+  once for every new email and returns a one-line summary as the `summary` output.
+- `fetchRecentEmails` takes an optional `from` input, calls the Gmail **Search Email** action and returns the matching
+  messages as the `emails` output.
+
+### Connections
+
+A task names the connections it uses and calls a component action through one of them:
+
+```javascript
+connections: [{componentName: "googleMail", name: "gmail"}],
+perform: function (context) {
+    return context.component.googleMail.searchEmail({maxResults: 10}, "gmail");
+}
+```
+
+The declared connection, and the Gmail trigger, show up in the workflow's test configuration and in the project
+deployment like any other workflow connection: pick a Gmail connection for `gmail` there. Nothing in the source names a
+specific account.
 
 Inside `perform`, `context.input()` returns the workflow inputs plus the output of every task that already ran (under
 the task's name), `context.input("name")` returns one of them, and `context.log(level, message)` writes to the
