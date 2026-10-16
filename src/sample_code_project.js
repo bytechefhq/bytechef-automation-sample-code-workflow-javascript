@@ -28,7 +28,6 @@
             name: "summarizeNewEmail",
             label: "Summarize New Email",
             description: "Runs for every new email in the inbox and logs who sent it.",
-            // The trigger runs on the Gmail connection chosen for it when the project is deployed.
             triggers: [{name: "newEmail", type: "googleMail/v1/newEmailPolling", parameters: {format: "SIMPLE"}}],
             outputs: [{name: "summary", task: "summarize"}],
             tasks: [
@@ -57,9 +56,6 @@
                 {
                     name: "fetchEmails",
                     label: "Fetch Emails",
-                    // A code task's perform calls actions itself, so it declares the connections it uses; the name is
-                    // what perform passes to the action. Pick the Gmail connection for "gmail" in the test
-                    // configuration or when deploying the project.
                     connections: [{componentName: "googleMail", name: "gmail"}],
                     perform: function (context) {
                         const result = context.component.googleMail.searchEmail(
@@ -76,7 +72,6 @@
             name: "notifySlackOnNewEmail",
             label: "Notify Slack on New Email",
             description: "Posts every new email in the inbox to a Slack channel.",
-            // Takes its options from Slack's channel input, so the channel is picked from the workspace's channels.
             inputs: [
                 {
                     name: "channel", label: "Slack Channel", type: "STRING", required: true,
@@ -90,9 +85,6 @@
                     name: "postToSlack",
                     label: "Post to Slack",
                     description: "Posts the sender and subject with the Slack Send Channel Message action.",
-                    // The Gmail trigger needs no declaration, but the task calls Slack itself, so it declares
-                    // that connection and passes the name. Pick the Slack connection for "slack" in the test
-                    // configuration or when deploying the project.
                     connections: [{componentName: "slack", name: "slack"}],
                     perform: function (context) {
                         const email = context.input("newEmail");
