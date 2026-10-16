@@ -6,7 +6,7 @@ The file is a single parenthesized object expression, `({ ... })`. The server ev
 `name`, `description`, `version` and `workflows`, then calls each task's `perform(context)` when the workflow runs.
 Keep it a bare expression: a bundler or module wrapper hides the object from the server.
 
-The project, "Sample Code Project JavaScript", has three workflows:
+The project, "Sample Code Project JavaScript", has four workflows:
 
 - `sampleWorkflow1` takes a `name` input, runs one task, `greet`, that logs and returns `Hello, <name>!`, and exposes
   that as the `greeting` output.
@@ -14,6 +14,10 @@ The project, "Sample Code Project JavaScript", has three workflows:
   once for every new email and returns a one-line summary as the `summary` output.
 - `fetchRecentEmails` takes an optional `from` input, calls the Gmail **Search Email** action and returns the matching
   messages as the `emails` output.
+- `notifySlackOnNewEmail` starts with the Gmail **New Email** trigger and takes a required `channel` input, the ID of a
+  Slack channel. Its `postToSlack` task calls the Slack **Send Channel Message** action, so it declares a `slack`
+  connection and passes its name: pick a Slack connection for it in the test configuration or when deploying the
+  project.
 
 ### Connections
 
