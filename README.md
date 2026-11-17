@@ -3,8 +3,8 @@
 A sample ByteChef **automation code project** written in JavaScript. The whole project is one file,
 [`src/sample_code_project.js`](src/sample_code_project.js), and that file is what you deploy - there is no build step.
 The file is a single parenthesized object expression, `({ ... })`. The server evaluates it and reads the object's
-`name`, `description`, `version` and `workflows`, then calls each task's `perform(context)` when the workflow runs.
-Keep it a bare expression: a bundler or module wrapper hides the object from the server.
+`name`, `description`, `version` and `workflows`, then calls each task's `perform(input, context)` when the workflow
+runs. Keep it a bare expression: a bundler or module wrapper hides the object from the server.
 
 The project, "Sample Code Project JavaScript", has four workflows:
 
@@ -26,7 +26,7 @@ A task names the connections it uses and calls a component action through one of
 
 ```javascript
 connections: [{componentName: "googleMail", name: "gmail"}],
-perform: function (context) {
+perform: function (input, context) {
     return context.component.googleMail.searchEmail({maxResults: 10}, "gmail");
 }
 ```
@@ -35,9 +35,11 @@ The declared connection, and the Gmail trigger, show up in the workflow's test c
 deployment like any other workflow connection: pick a Gmail connection for `gmail` there. Nothing in the source names a
 specific account.
 
-Inside `perform`, `context.input()` returns the workflow inputs plus the output of every task that already ran (under
-the task's name), `context.input("name")` returns one of them, and `context.log(level, message)` writes to the
-execution log.
+A task's `perform` takes `(input, context)`. `input` holds the workflow inputs plus the output of every task that
+already ran (under the task's name), so `input.name` returns one of them, and `context.log(level, message)` writes to
+the execution log. A task that reads its connections' parameters, to build a request itself, takes
+`perform(input, connection, context)` instead: `connection` maps each declared connection's name to that connection's
+parameters, credentials included.
 
 ## Check
 
@@ -52,9 +54,10 @@ needs only Node.js; the JavaScript file has no dependencies to install.
 
 [`src/sample_code_project.ts`](src/sample_code_project.ts) is the same project written in TypeScript. It takes its types
 from [`@bytechef/workflow-api`](https://www.npmjs.com/package/@bytechef/workflow-api) through a
-`/// <reference types="@bytechef/workflow-api" />` directive and ends in `satisfies ByteChef.ProjectDefinition`, so
-`context` is typed inside every `perform` and a missing `name` or a misspelled `perform` fails the build. The server
-runs only JavaScript, so compile the file and deploy the output:
+`/// <reference types="@bytechef/workflow-api" />` directive and ends in `satisfies ByteChef.ProjectDefinition`, so a
+missing `name` or a misspelled `perform` fails the build. TypeScript does not infer the parameter types of a
+two-parameter `perform`, so each one annotates `input` and `context` with `ByteChef.TaskInput` and
+`ByteChef.TaskContext`. The server runs only JavaScript, so compile the file and deploy the output:
 
 ```bash
 npm install

@@ -23,8 +23,8 @@ interface Email {
                     name: "greet",
                     label: "Greet",
                     description: "Builds a greeting from the name input.",
-                    perform: (context) => {
-                        const name = context.input("name") as string;
+                    perform: (input: ByteChef.TaskInput, context: ByteChef.TaskContext) => {
+                        const name = input.name as string;
 
                         context.log("info", "Greeting " + name);
 
@@ -43,8 +43,8 @@ interface Email {
                 {
                     name: "summarize",
                     label: "Summarize",
-                    perform: (context) => {
-                        const email = context.input("newEmail") as Email;
+                    perform: (input: ByteChef.TaskInput, context: ByteChef.TaskContext) => {
+                        const email = input.newEmail as Email;
 
                         const summary = "New email from " + email.from + ": " + email.subject;
 
@@ -66,9 +66,9 @@ interface Email {
                     name: "fetchEmails",
                     label: "Fetch Emails",
                     connections: [{componentName: "googleMail", name: "gmail"}],
-                    perform: (context) => {
+                    perform: (input: ByteChef.TaskInput, context: ByteChef.TaskContext) => {
                         const result: {messages?: Email[]} = context.component.googleMail.searchEmail(
-                            {from: context.input()["from"], maxResults: 10}, "gmail");
+                            {from: input.from, maxResults: 10}, "gmail");
 
                         context.log("info", "Found " + (result.messages || []).length + " emails");
 
@@ -95,13 +95,13 @@ interface Email {
                     label: "Post to Slack",
                     description: "Posts the sender and subject with the Slack Send Channel Message action.",
                     connections: [{componentName: "slack", name: "slack"}],
-                    perform: (context) => {
-                        const email = context.input("newEmail") as Email;
+                    perform: (input: ByteChef.TaskInput, context: ByteChef.TaskContext) => {
+                        const email = input.newEmail as Email;
 
                         const text = "New email from " + email.from + ": " + email.subject;
 
                         const message = context.component.slack.sendChannelMessage(
-                            {channel: context.input("channel"), text: text}, "slack");
+                            {channel: input.channel, text: text}, "slack");
 
                         context.log("info", "Posted to Slack: " + text);
 

@@ -14,8 +14,8 @@
                     name: "greet",
                     label: "Greet",
                     description: "Builds a greeting from the name input.",
-                    perform: function (context) {
-                        const name = context.input("name");
+                    perform: function (input, context) {
+                        const name = input.name;
 
                         context.log("info", "Greeting " + name);
 
@@ -34,8 +34,8 @@
                 {
                     name: "summarize",
                     label: "Summarize",
-                    perform: function (context) {
-                        const email = context.input("newEmail");
+                    perform: function (input, context) {
+                        const email = input.newEmail;
 
                         const summary = "New email from " + email.from + ": " + email.subject;
 
@@ -57,9 +57,9 @@
                     name: "fetchEmails",
                     label: "Fetch Emails",
                     connections: [{componentName: "googleMail", name: "gmail"}],
-                    perform: function (context) {
+                    perform: function (input, context) {
                         const result = context.component.googleMail.searchEmail(
-                            {from: context.input()["from"], maxResults: 10}, "gmail");
+                            {from: input.from, maxResults: 10}, "gmail");
 
                         context.log("info", "Found " + (result.messages || []).length + " emails");
 
@@ -86,13 +86,13 @@
                     label: "Post to Slack",
                     description: "Posts the sender and subject with the Slack Send Channel Message action.",
                     connections: [{componentName: "slack", name: "slack"}],
-                    perform: function (context) {
-                        const email = context.input("newEmail");
+                    perform: function (input, context) {
+                        const email = input.newEmail;
 
                         const text = "New email from " + email.from + ": " + email.subject;
 
                         const message = context.component.slack.sendChannelMessage(
-                            {channel: context.input("channel"), text: text}, "slack");
+                            {channel: input.channel, text: text}, "slack");
 
                         context.log("info", "Posted to Slack: " + text);
 
