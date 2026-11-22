@@ -6,7 +6,7 @@ The file is a single parenthesized object expression, `({ ... })`. The server ev
 `name`, `description`, `version` and `workflows`, then calls each task's `perform(input, context)` when the workflow
 runs. Keep it a bare expression: a bundler or module wrapper hides the object from the server.
 
-The project, "Sample Code Project JavaScript", has four workflows:
+The project, "Sample Code Project JavaScript", has five workflows:
 
 - `sampleWorkflow1` takes a `name` input, runs one task, `greet`, that logs and returns `Hello, <name>!`, and exposes
   that as the `greeting` output.
@@ -19,6 +19,33 @@ The project, "Sample Code Project JavaScript", has four workflows:
   picked from the Slack workspace's channels. Its `postToSlack` task calls the Slack **Send Channel Message** action, so
   it declares a `slack` connection and passes its name: pick a Slack connection for it in the test configuration or when
   deploying the project.
+- `listOrders` starts with the API Platform **New API Request** trigger (`apiPlatform/v1/newApiRequest`), so it can back
+  an API Platform endpoint. Its `fetchOrders` task returns a list of orders, and its `respond` task is a component task
+  that runs the API Platform **Response to API Request** action with the `fetchOrders` output as the response body.
+
+### Component tasks
+
+A task that only runs a component action, with no logic of its own, can name the action by type instead of declaring
+a `perform` function, the same way a trigger names its component:
+
+```javascript
+{
+    name: "respond",
+    type: "apiPlatform/v1/responseToAPIRequest",
+    parameters: {responseType: "SUCCESS", response: {success: "${fetchOrders}"}}
+}
+```
+
+The type is `<component>/v<version>/<action>`, and `parameters` holds the action's inputs. A `${...}` expression is
+evaluated when the task runs: `"${fetchOrders}"` is the whole output of the `fetchOrders` task, `"${fetchOrders.count}"`
+one of its fields and `"${fetchOrders.orders[0].id}"` an element of a list, and text such as
+`"Found ${fetchOrders.count} orders"` becomes a string with the value filled in. A component task declares no
+`connections`: when its action needs one, the workflow's test configuration and the project deployment ask for it like
+for the same task in a visual workflow. Deploying fails when the component, its version or the action does not exist on
+the server.
+
+To serve `listOrders`, create an API collection for the deployed project under Automation → **API Platform**, add an
+endpoint that runs `listOrders`, and enable both; a request to the endpoint answers with the orders.
 
 ### Connections
 
@@ -47,8 +74,9 @@ parameters, credentials included.
 npm run check
 ```
 
-Evaluates the file the same way the server does, checks its shape and runs each task once with a stub context. It
-needs only Node.js; the JavaScript file has no dependencies to install.
+Evaluates the file the same way the server does, checks its shape and runs each task once with a stub context. A
+component task prints its action type and its parameters with the `${...}` expressions filled in. It needs only
+Node.js; the JavaScript file has no dependencies to install.
 
 ## TypeScript
 

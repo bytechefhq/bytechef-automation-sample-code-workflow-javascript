@@ -100,6 +100,32 @@
                     }
                 }
             ]
+        },
+        {
+            name: "listOrders",
+            label: "List Orders",
+            description: "Serves an API Platform endpoint that answers with the orders fetchOrders returns.",
+            triggers: [{name: "request", type: "apiPlatform/v1/newApiRequest", parameters: {request: {}}}],
+            tasks: [
+                {
+                    name: "fetchOrders",
+                    label: "Fetch Orders",
+                    perform: function (input, context) {
+                        const orders = [{id: 1, total: 42}, {id: 2, total: 17}];
+
+                        context.log("info", "Returning " + orders.length + " orders");
+
+                        return {orders: orders, count: orders.length};
+                    }
+                },
+                {
+                    name: "respond",
+                    label: "Respond",
+                    description: "Answers the API caller with the fetchOrders output.",
+                    type: "apiPlatform/v1/responseToAPIRequest",
+                    parameters: {responseType: "SUCCESS", response: {success: "${fetchOrders}"}}
+                }
+            ]
         }
     ]
 })
